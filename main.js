@@ -5,11 +5,18 @@ let matrix = new Array(8);
 for (let i = 0; i < 8; i++) {
     matrix[i] = new Array(10);
 }
-for (let i = 0; i < 8; i++) {
-    for (let j = 0; j < 10; j++) {
-        matrix[i][j] = 0;
+
+let resetBoard = () => {
+    for (let i = 0; i < 8; i++) {
+        for (let j = 0; j < 10; j++) {
+            if (matrix[i][j] != -1) {
+                matrix[i][j] = 0;
+            }
+        }
     }
 }
+
+resetBoard();
 
 //random int to place bomb
 function getRandomInt(min, max) {
@@ -18,12 +25,18 @@ function getRandomInt(min, max) {
     return Math.floor(Math.random() * (max - min + 1)) + min;
 }
 
-let countBomb = 0;
-while (countBomb < 10) {
+let getRandomXY = () => {
     let randomX = getRandomInt(0, 7);
     let randomY = getRandomInt(0, 9);
 
-    if (randomX != 0 && randomY != 0) {
+    return [randomX, randomY];
+}
+
+let countBomb = 0;
+while (countBomb < 10) {
+    let [randomX, randomY] = getRandomXY();
+
+    if (matrix[randomX][randomY] != -1) {
         matrix[randomX][randomY] = -1;
 
         countBomb++;
@@ -86,22 +99,38 @@ for (let i = 0; i < 80; i++) {
     paintBombRed();
 
     blocks[i].addEventListener("click", e => {
-        if (firstMove == 0 && matrix[x][y] == -1) {
-            matrix[0][0] = -1;
-            matrix[x][y] = 0;
+        if (firstMove == 0) {
+            for (let i = x-1; i <= x+1; i++) {
+                for (let j = y-1; j <= y+1; j++) {
+                    if (i >= 0 && i < 8 && j >= 0 && j < 10) {
+                        if (matrix[i][j] == -1) {
+                            isThrownAway = 0;
 
-            //reset board
-            for (let i = 0; i < 8; i++) {
-                for (let j = 0; j < 10; j++) {
-                    if (matrix[i][j] != -1) {
-                        matrix[i][j] = 0;
+                            while (isThrownAway == 0) {
+                                let [randomX, randomY] = getRandomXY();
+
+                                if ((randomX < x-1 || randomX > x+1) && (randomY < y-1 || randomY > y+1)) {
+                                    if (matrix[randomX][randomY] != -1) {
+                                        matrix[randomX][randomY] = -1;
+                                        matrix[i][j] = 0;
+
+                                        isThrownAway = 1;
+                                    }
+                                }
+                            }
+                        }
                     }
                 }
             }
 
+            resetBoard();
             placeNumber();
             renderBoard();
             paintBombRed();
+
+            firstMove = 1;
+        } else {
+
         }
     });
 }
