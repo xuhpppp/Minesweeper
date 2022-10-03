@@ -33,7 +33,7 @@ let getRandomXY = () => {
 }
 
 let countBomb = 0;
-while (countBomb < 10) {
+while (countBomb < 15) {
     let [randomX, randomY] = getRandomXY();
 
     if (matrix[randomX][randomY] != -1) {
@@ -42,6 +42,7 @@ while (countBomb < 10) {
         countBomb++;
     }
 }
+countBomb = 15;
 
 //gen number for each block
 let placeNumber = () => {
@@ -86,6 +87,28 @@ let paintBombRed = () => {
     
         if (matrix[x][y] == -1) {
             blocks[x * 10 + y].style.background = 'red';
+        } else {
+            blocks[x * 10 + y].style.background = 'lightgray';
+        }
+    }
+}
+
+let expand = (x, y) => {
+    for (let i = x-1; i <= x+1; i++) {
+        for (let j = y-1; j <= y+1; j++) {
+            
+            if (i >= 0 && i < 8 && j >= 0 && j < 10) {
+                if (matrix[i][j] == 0 && blocks[i * 10 + j].style.background != 'lightgray') {
+                    blocks[i * 10 + j].style.background = 'lightgray';
+                    blocks[i * 10 + j].innerHTML = matrix[i][j];
+
+                    expand(i, j);
+                } else if (matrix[i][j] > 0 && blocks[i * 10 + j].style.background != 'lightgray') {
+                    blocks[i * 10 + j].style.background = 'lightgray';
+                    blocks[i * 10 + j].innerHTML = matrix[i][j];
+                }
+            }
+
         }
     }
 }
@@ -95,8 +118,7 @@ for (let i = 0; i < 80; i++) {
     let y = i % 10;
     let x = (i - y) / 10;
 
-    renderBoard();
-    paintBombRed();
+    //renderBoard();
 
     blocks[i].addEventListener("click", e => {
         if (firstMove == 0) {
@@ -125,13 +147,46 @@ for (let i = 0; i < 80; i++) {
 
             resetBoard();
             placeNumber();
-            renderBoard();
-            paintBombRed();
+            //renderBoard();
+
+            expand(x, y);
 
             firstMove = 1;
         } else {
+            if (matrix[x][y] == 0) {
+                expand(x, y);
+            } else if (matrix[x][y] > 0 && blocks[x * 10 + y].style.background != 'lightgray') {
+                blocks[x * 10 + y].style.background = 'lightgray';
+                blocks[x * 10 + y].innerHTML = matrix[x][y];
+            } else if (matrix[x][y] > 0 && blocks[x * 10 + y].style.background == 'lightgray') {
+                for (let i = x-1; i <= x+1; i++) {
+                    for (let j = y-1; j <= y+1; j++) {
 
+                        if (i >= 0 && i < 8 && j >= 0 && j < 10) {
+                            if (blocks[i * 10 + j].style.background != 'lightyellow') {
+                                if (matrix[i][j] == 0) {
+                                    expand(i, j);
+                                } else if (matrix[i][j] > 0) {
+                                    blocks[i * 10 + j].style.background = 'lightgray';
+                                    blocks[i * 10 + j].innerHTML = matrix[i][j];
+                                } else {
+                                    renderBoard();
+                                    paintBombRed();
+                                }
+                            }
+                        }
+                        
+                    }
+                }
+            } else {
+                renderBoard();
+                paintBombRed();
+            }
         }
+    });
+
+    blocks[i].addEventListener("contextmenu", e => {
+        // need to fix this
     });
 }
 
