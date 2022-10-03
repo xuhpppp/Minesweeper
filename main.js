@@ -121,72 +121,86 @@ for (let i = 0; i < 80; i++) {
     //renderBoard();
 
     blocks[i].addEventListener("click", e => {
-        if (firstMove == 0) {
-            for (let i = x-1; i <= x+1; i++) {
-                for (let j = y-1; j <= y+1; j++) {
-                    if (i >= 0 && i < 8 && j >= 0 && j < 10) {
-                        if (matrix[i][j] == -1) {
-                            isThrownAway = 0;
-
-                            while (isThrownAway == 0) {
-                                let [randomX, randomY] = getRandomXY();
-
-                                if ((randomX < x-1 || randomX > x+1) && (randomY < y-1 || randomY > y+1)) {
-                                    if (matrix[randomX][randomY] != -1) {
-                                        matrix[randomX][randomY] = -1;
-                                        matrix[i][j] = 0;
-
-                                        isThrownAway = 1;
+        if (blocks[i].innerHTML != '?') {
+            if (firstMove == 0) {
+                for (let i = x-1; i <= x+1; i++) {
+                    for (let j = y-1; j <= y+1; j++) {
+                        if (i >= 0 && i < 8 && j >= 0 && j < 10) {
+                            if (matrix[i][j] == -1) {
+                                isThrownAway = 0;
+    
+                                while (isThrownAway == 0) {
+                                    let [randomX, randomY] = getRandomXY();
+    
+                                    if ((randomX < x-1 || randomX > x+1) && (randomY < y-1 || randomY > y+1)) {
+                                        if (matrix[randomX][randomY] != -1) {
+                                            matrix[randomX][randomY] = -1;
+                                            matrix[i][j] = 0;
+    
+                                            isThrownAway = 1;
+                                        }
                                     }
                                 }
                             }
                         }
                     }
                 }
-            }
-
-            resetBoard();
-            placeNumber();
-            //renderBoard();
-
-            expand(x, y);
-
-            firstMove = 1;
-        } else {
-            if (matrix[x][y] == 0) {
+    
+                resetBoard();
+                placeNumber();
+                //renderBoard();
+    
                 expand(x, y);
-            } else if (matrix[x][y] > 0 && blocks[x * 10 + y].style.background != 'lightgray') {
-                blocks[x * 10 + y].style.background = 'lightgray';
-                blocks[x * 10 + y].innerHTML = matrix[x][y];
-            } else if (matrix[x][y] > 0 && blocks[x * 10 + y].style.background == 'lightgray') {
-                for (let i = x-1; i <= x+1; i++) {
-                    for (let j = y-1; j <= y+1; j++) {
-
-                        if (i >= 0 && i < 8 && j >= 0 && j < 10) {
-                            if (blocks[i * 10 + j].style.background != 'lightyellow') {
-                                if (matrix[i][j] == 0) {
-                                    expand(i, j);
-                                } else if (matrix[i][j] > 0) {
-                                    blocks[i * 10 + j].style.background = 'lightgray';
-                                    blocks[i * 10 + j].innerHTML = matrix[i][j];
-                                } else {
-                                    renderBoard();
-                                    paintBombRed();
+    
+                firstMove = 1;
+            } else {
+                if (matrix[x][y] == 0) {
+                    expand(x, y);
+                } else if (matrix[x][y] > 0 && blocks[x * 10 + y].style.background != 'lightgray') {
+                    blocks[x * 10 + y].style.background = 'lightgray';
+                    blocks[x * 10 + y].innerHTML = matrix[x][y];
+                } else if (matrix[x][y] > 0 && blocks[x * 10 + y].style.background == 'lightgray') {
+                    for (let i = x-1; i <= x+1; i++) {
+                        for (let j = y-1; j <= y+1; j++) {
+    
+                            if (i >= 0 && i < 8 && j >= 0 && j < 10) {
+                                if (blocks[i * 10 + j].style.background != 'lightyellow') {
+                                    if (matrix[i][j] == 0) {
+                                        expand(i, j);
+                                    } else if (matrix[i][j] > 0) {
+                                        blocks[i * 10 + j].style.background = 'lightgray';
+                                        blocks[i * 10 + j].innerHTML = matrix[i][j];
+                                    } else {
+                                        renderBoard();
+                                        paintBombRed();
+                                    }
                                 }
                             }
+                            
                         }
-                        
                     }
+                } else {
+                    renderBoard();
+                    paintBombRed();
                 }
-            } else {
-                renderBoard();
-                paintBombRed();
             }
         }
     });
 
     blocks[i].addEventListener("contextmenu", e => {
-        // need to fix this
+        if (blocks[i].innerHTML == '?') {
+            blocks[i].innerHTML = '';
+            blocks[i].style.background = 'white';
+
+            countBomb++;
+        } else {
+            if (blocks[i].innerHTML == '') {
+                if (countBomb > 0) {
+                    blocks[i].innerHTML = '?';
+                    blocks[i].style.background = 'lightyellow';
+                }
+            }
+        }
     });
 }
 
